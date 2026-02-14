@@ -249,7 +249,16 @@ export const updateChannelStats = async (
     logger.info(
       `[updateChannelStats] subscribers fallback → Bot API getChatMemberCount`,
     );
-    subscribers = await getChatMemberCount(botToken, String(channelTelegramId));
+    try {
+      subscribers = await getChatMemberCount(
+        botToken,
+        String(channelTelegramId),
+      );
+    } catch (err) {
+      logger.warn(
+        `[updateChannelStats] getChatMemberCount failed for ${channelTelegramId}: ${err instanceof Error ? err.message : err}`,
+      );
+    }
   }
 
   // Фоллбэк: охваты из channel_post_views, если Zyra Views не вернул
@@ -257,7 +266,13 @@ export const updateChannelStats = async (
     logger.info(
       `[updateChannelStats] avgViews fallback → computeChannelAvgViews (local DB)`,
     );
-    avgViews = await computeChannelAvgViews(channelTelegramId);
+    try {
+      avgViews = await computeChannelAvgViews(channelTelegramId);
+    } catch (err) {
+      logger.warn(
+        `[updateChannelStats] computeChannelAvgViews failed for ${channelTelegramId}: ${err instanceof Error ? err.message : err}`,
+      );
+    }
   }
 
   const err =
